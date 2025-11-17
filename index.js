@@ -10,9 +10,28 @@ import geminiResponse from "./gemini.js"
 
 
 const app=express()
+
+// CORS configuration for both local and deployed frontend
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://virtualassistance-frontend.onrender.com",
+    // Add your actual frontend domain here
+]
+
 app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if(!origin) return callback(null, true)
+        if(allowedOrigins.indexOf(origin) === -1){
+            return callback(null, true) // For development, allow all origins
+        }
+        return callback(null, true)
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie']
 }))
 const port=process.env.PORT || 5000
 app.use(express.json())

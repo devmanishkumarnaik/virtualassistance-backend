@@ -19,21 +19,41 @@ return res.status(400).json({message:"user not found"})
 export const updateAssistant=async (req,res)=>{
    try {
       const {assistantName,imageUrl}=req.body
+      console.log("Update Assistant Request:")
+      console.log("- assistantName:", assistantName)
+      console.log("- imageUrl:", imageUrl)
+      console.log("- req.file:", req.file)
+      console.log("- userId:", req.userId)
+
+      if(!assistantName){
+         return res.status(400).json({message:"Assistant name is required"})
+      }
+
       let assistantImage;
-if(req.file){
-   assistantImage=await uploadOnCloudinary(req.file.path)
-}else{
-   assistantImage=imageUrl
-}
+      if(req.file){
+         console.log("Uploading file to Cloudinary...")
+         assistantImage=await uploadOnCloudinary(req.file.path)
+         console.log("Cloudinary upload result:", assistantImage)
+      }else if(imageUrl){
+         assistantImage=imageUrl
+      }else{
+         return res.status(400).json({message:"Assistant image is required"})
+      }
 
-const user=await User.findByIdAndUpdate(req.userId,{
-   assistantName,assistantImage
-},{new:true}).select("-password")
-return res.status(200).json(user)
-
+      const user=await User.findByIdAndUpdate(req.userId,{
+         assistantName,assistantImage
+      },{new:true}).select("-password")
       
+      if(!user){
+         return res.status(404).json({message:"User not found"})
+      }
+
+      console.log("Assistant updated successfully")
+      return res.status(200).json(user)
+
    } catch (error) {
-       return res.status(400).json({message:"updateAssistantError user error"}) 
+      console.error("Update Assistant Error:", error)
+      return res.status(500).json({message:error.message || "Failed to update assistant"}) 
    }
 }
 
