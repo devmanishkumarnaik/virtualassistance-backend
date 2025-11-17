@@ -15,7 +15,7 @@ const app=express()
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
-    "https://myaivirtual.vercel.app",
+    "https://myvirtualai.vercel.app",
     // Add your actual frontend domain here
 ]
 
